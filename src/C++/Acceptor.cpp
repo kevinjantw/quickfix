@@ -109,7 +109,12 @@ Session *Acceptor::getSession(const std::string &msg, Responder &responder) {
     auto const &clSenderCompID = message.getHeader().getField<SenderCompID>();
     auto const &clTargetCompID = message.getHeader().getField<TargetCompID>();
     auto const &msgType = message.getHeader().getField<MsgType>();
-    if (msgType != MsgType_Logon) {
+    /*if (msgType != MsgType_Logon) {
+      return 0;
+    }*/
+	
+	// 如果是 `35=0` (Heartbeat)，不記錄日誌
+	if (msgType != "0") {
       return 0;
     }
 
