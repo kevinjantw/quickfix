@@ -113,9 +113,9 @@ Session *Acceptor::getSession(const std::string &msg, Responder &responder) {
       return 0;
     }*/
 	
-	// 如果是 `35=0` (Heartbeat)，不記錄日誌
-	if (msgType != "0") {
-      return 0;
+    // 如果是 `35=0` (Heartbeat)，不記錄日誌
+    if (msgType != "0") {
+    return 0;
     }
 
     SenderCompID senderCompID(clTargetCompID);
