@@ -109,14 +109,6 @@ Session *Acceptor::getSession(const std::string &msg, Responder &responder) {
     auto const &clSenderCompID = message.getHeader().getField<SenderCompID>();
     auto const &clTargetCompID = message.getHeader().getField<TargetCompID>();
     auto const &msgType = message.getHeader().getField<MsgType>();
-    /*if (msgType != MsgType_Logon) {
-      return 0;
-    }*/
-	
-    // 如果是 `35=0` (Heartbeat)，不記錄日誌
-    if (msgType != "0") {
-    return 0;
-    }
 
     SenderCompID senderCompID(clTargetCompID);
     TargetCompID targetCompID(clSenderCompID);
@@ -125,9 +117,16 @@ Session *Acceptor::getSession(const std::string &msg, Responder &responder) {
     Sessions::iterator i = m_sessions.find(sessionID);
     if (i != m_sessions.end()) {
       i->second->setResponder(&responder);
+
+      // 如果是 `35=0` (Heartbeat)，不記錄日誌，但仍然允許 FIX 會話
+      if (msgType == "0") {
+          return i->second; // 確保 Heartbeat 仍然透過 FIX 會話傳遞
+      }
+
       return i->second;
     }
   } catch (FieldNotFound &) {}
+
   return 0;
 }
 
