@@ -167,7 +167,8 @@ void Session::next(const UtcTimeStamp &now) {
         m_state.testRequest(m_state.testRequest() + 1);
         m_state.onEvent("Sent test request TEST");
       } else if (m_state.needHeartbeat(m_timestamper())) {
-        generateHeartbeat();
+        // 阻止 `35=0` 被記錄，但仍然允許 FIX 會話運行
+        return;
       }
     }
   } catch (FIX::IOException &e) {
