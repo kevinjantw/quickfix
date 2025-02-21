@@ -36,6 +36,15 @@ public:
   virtual void onEvent(const std::string &) = 0;
 };
 
+class NullLog : public Log {
+public:
+  void clear() override {}
+  void backup() override {}
+  void onIncoming(const std::string &) override {}
+  void onOutgoing(const std::string &) override {}
+  void onEvent(const std::string &) override {}
+};
+
 class ScreenLog : public Log {
 public:
   ScreenLog(bool incoming, bool outgoing, bool event)
