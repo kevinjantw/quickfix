@@ -1,21 +1,4 @@
-/****************************************************************************
-** Copyright (c) 2001-2014
-**
-** This file is part of the QuickFIX FIX Engine
-**
-** This file may be distributed under the terms of the quickfixengine.org
-** license as defined by quickfixengine.org and appearing in the file
-** LICENSE included in the packaging of this file.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.quickfixengine.org/LICENSE for licensing information.
-**
-** Contact ask@quickfixengine.org if any conditions of this licensing are
-** not clear to you.
-**
-****************************************************************************/
+/* Modified Log.cpp to filter 35=0 (Heartbeat) messages */
 
 #ifdef _MSC_VER
 #include "stdafx.h"
@@ -65,6 +48,39 @@ void ScreenLogFactory::init(const Dictionary &settings, bool &incoming, bool &ou
     outgoing = m_outgoing;
     event = m_event;
   }
+}
+
+void ScreenLog::onIncoming(const std::string &value) {
+  if (!m_incoming || value.find("35=0") != std::string::npos) {
+    return;
+  }
+  Locker l(s_mutex);
+  m_time.setCurrent();
+  std::cout << "<" << UtcTimeStampConvertor::convert(m_time, 9) << ", " << m_prefix << ", "
+            << "incoming>" << std::endl
+            << "  (" << replaceSOHWithPipe(value) << ")" << std::endl;
+}
+
+void ScreenLog::onOutgoing(const std::string &value) {
+  if (!m_outgoing || value.find("35=0") != std::string::npos) {
+    return;
+  }
+  Locker l(s_mutex);
+  m_time.setCurrent();
+  std::cout << "<" << UtcTimeStampConvertor::convert(m_time, 9) << ", " << m_prefix << ", "
+            << "outgoing>" << std::endl
+            << "  (" << replaceSOHWithPipe(value) << ")" << std::endl;
+}
+
+void ScreenLog::onEvent(const std::string &value) {
+  if (!m_event) {
+    return;
+  }
+  Locker l(s_mutex);
+  m_time.setCurrent();
+  std::cout << "<" << UtcTimeStampConvertor::convert(m_time, 9) << ", " << m_prefix << ", "
+            << "event>" << std::endl
+            << "  (" << replaceSOHWithPipe(value) << ")" << std::endl;
 }
 
 void ScreenLogFactory::destroy(Log *pLog) { delete pLog; }
